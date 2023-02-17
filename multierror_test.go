@@ -3,6 +3,7 @@ package multierror_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"testing"
@@ -95,4 +96,29 @@ func TestMultiError(t *testing.T) {
 	if b, err := json.Marshal(multierror.Append(err1, err2)); err != nil || string(b) != `"sentinel one, sentinel two, sentinel three, sentinel four"` {
 		t.Errorf("Expected Append to support json.Marshal: %s, %s", err, string(b))
 	}
+}
+
+func ExampleAppend() {
+	err := multierror.Append(errSentinelOne, errSentinelTwo)
+	fmt.Println(err)
+	// output: Found 2 errors:
+	//	sentinel one
+	//	sentinel two
+}
+
+func ExampleAppend_Nested() {
+	err := multierror.Append(errSentinelOne, errSentinelTwo)
+	err = multierror.Append(err, errSentinelThree)
+	fmt.Println(err)
+	// output: Found 3 errors:
+	//	sentinel one
+	//	sentinel two
+	//	sentinel three
+}
+
+func ExampleAppend_JSONMarshal() {
+	err := multierror.Append(errSentinelOne, errSentinelTwo)
+	b, _ := json.Marshal(err)
+	fmt.Println(string(b))
+	// output: "sentinel one, sentinel two"
 }
