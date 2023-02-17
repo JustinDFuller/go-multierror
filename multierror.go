@@ -28,17 +28,45 @@ func (m *multiError) Error() string {
 
 	var s string
 
-	if len(m.errors) == 1 {
-		s += "Found one error:\n"
-	} else {
-		s += fmt.Sprintf("Found %d errors:\n", len(m.errors))
+	var errs []error
+	for _, e := range m.errors {
+		errs = append(errs, getRecursiveErrors(e)...)
 	}
 
-	for _, err := range m.errors {
+	if len(errs) == 1 {
+		s += "Found one error:\n"
+	} else {
+		s += fmt.Sprintf("Found %d errors:\n", len(errs))
+	}
+
+	for _, err := range errs {
 		s += fmt.Sprintf("\t%s\n", err.Error())
 	}
 
 	return s
+}
+
+func getRecursiveErrors(err error) []error {
+	if err == nil {
+		return nil
+	}
+
+	var flattened []error
+
+	switch e := err.(type) {
+	case *multiError:
+		if len(e.errors) == 0 {
+			return nil
+		}
+
+		for _, e := range e.errors {
+			flattened = append(flattened, getRecursiveErrors(e)...)
+		}
+	case error:
+		return []error{e}
+	}
+
+	return flattened
 }
 
 func (m *multiError) Is(target error) bool {
