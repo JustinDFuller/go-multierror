@@ -30,7 +30,7 @@ func (m *multiError) Error() string {
 
 	var errs []error
 	for _, e := range m.errors {
-		errs = append(errs, getRecursiveErrors(e)...)
+		errs = append(errs, flatten(e)...)
 	}
 
 	if len(errs) == 1 {
@@ -46,7 +46,7 @@ func (m *multiError) Error() string {
 	return s
 }
 
-func getRecursiveErrors(err error) []error {
+func flatten(err error) []error {
 	if err == nil {
 		return nil
 	}
@@ -60,7 +60,7 @@ func getRecursiveErrors(err error) []error {
 		}
 
 		for _, e := range e.errors {
-			flattened = append(flattened, getRecursiveErrors(e)...)
+			flattened = append(flattened, flatten(e)...)
 		}
 	case error:
 		return []error{e}
