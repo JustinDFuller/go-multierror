@@ -1,6 +1,7 @@
 package multierror_test
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"os"
@@ -89,5 +90,9 @@ func TestMultiError(t *testing.T) {
 		if !errors.As(err, &pathError) {
 			t.Errorf("Expected Append to support errors.As: %s", err)
 		}
+	}
+
+	if b, err := json.Marshal(multierror.Append(err1, err2)); err != nil || string(b) != `"sentinel one, sentinel two, sentinel three, sentinel four"` {
+		t.Errorf("Expected Append to support json.Marshal: %s, %s", err, string(b))
 	}
 }

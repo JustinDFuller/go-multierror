@@ -1,6 +1,7 @@
 package multierror
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -8,6 +9,24 @@ import (
 
 type multiError struct {
 	errors []error
+}
+
+func (m *multiError) MarshalJSON() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+
+	var errs []error
+	for _, e := range m.errors {
+		errs = append(errs, flatten(e)...)
+	}
+
+	var errStrings []string
+	for _, err := range errs {
+		errStrings = append(errStrings, err.Error())
+	}
+
+	return json.Marshal(strings.Join(errStrings, ", "))
 }
 
 func (m *multiError) GoString() string {
