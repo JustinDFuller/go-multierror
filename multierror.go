@@ -91,6 +91,28 @@ func (m *multiError) Is(target error) bool {
 	return false
 }
 
+func (m *multiError) As(target any) bool {
+	if m == nil {
+		return false
+	}
+
+	if target == nil {
+		return false
+	}
+
+	if m.errors == nil {
+		return false
+	}
+
+	for _, err := range m.errors {
+		if errors.As(err, target) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Append joins one error with one or more other errors.
 // The resulting value is a multiError containing all non-nil errors provided.
 // If the first error is a multiError, the rest of the errors will be appended to the existing multiError.
