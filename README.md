@@ -5,6 +5,7 @@
 [![Dependencies](https://img.shields.io/badge/Dependencies-None-success)](/go.mod)
 [![Go Report Card](https://goreportcard.com/badge/github.com/justindfuller/go-multierror)](https://goreportcard.com/report/github.com/justindfuller/go-multierror)
 [![License](https://img.shields.io/github/license/golangci/golangci-lint)](/LICENSE)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/justindfuller/go-multierror?label=Version)
 
 Package multierror implements a `Join` function that combines two or more Go errors.
 
