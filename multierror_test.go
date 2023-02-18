@@ -115,8 +115,17 @@ func TestMultiError(t *testing.T) {
 		t.Errorf("Expected Join to support json.Marshal: %s, %s", err, string(b))
 	}
 
-	if err := errors.Unwrap(multierror.Join(err1, err2)); err != nil {
-		t.Errorf("Expected to unwrap to return nil, got: %s", err)
+	unwrapped := errors.Unwrap(multierror.Join(err1, err2))
+	if !errors.Is(unwrapped, errSentinelOne) || !errors.Is(unwrapped, errSentinelTwo) {
+		t.Errorf("Expected to unwrap to return wrapped error, got: %s", unwrapped)
+	}
+	unwrapped = errors.Unwrap(unwrapped)
+	if !errors.Is(unwrapped, errSentinelThree) || !errors.Is(unwrapped, errSentinelFour) {
+		t.Errorf("Expected unwrap to unwrap second error, got %s", unwrapped)
+	}
+	unwrapped = errors.Unwrap(unwrapped)
+	if unwrapped != nil {
+		t.Errorf("Expected unwrap to be nil, got %s", unwrapped)
 	}
 
 	var builder strings.Builder

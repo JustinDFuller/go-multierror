@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -109,52 +108,16 @@ func flatten(err error) []error {
 	return flattened
 }
 
-func (m *multiError) Is(target error) bool {
-	if m == nil {
-		return false
+func (m *multiError) Unwrap() error {
+	if m == nil || len(m.errors) == 0 {
+		return nil
 	}
-
-	if target == nil {
-		return false
+	if len(m.errors) == 1 {
+		return m.errors[0]
 	}
-
-	if m.errors == nil {
-		return false
-	}
-
-	for _, err := range m.errors {
-		if errors.Is(err, target) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (m *multiError) As(target any) bool {
-	if m == nil {
-		return false
-	}
-
-	if target == nil {
-		return false
-	}
-
-	if m.errors == nil {
-		return false
-	}
-
-	for _, err := range m.errors {
-		if errors.As(err, target) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (m *multiError) Unwrap() []error {
-	return m.errors
+	errs := make([]error, len(m.errors))
+	copy(errs, m.errors)
+	return unwrapper(errs)
 }
 
 func (m *multiError) GobEncode() ([]byte, error) {
