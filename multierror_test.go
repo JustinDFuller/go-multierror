@@ -194,6 +194,7 @@ func ExampleJoin_errorsAs() {
 	err = multierror.Join(err, errSentinelOne)
 
 	var pathError *fs.PathError
+
 	fmt.Println(errors.As(err, &pathError))
 	// output: true
 }
@@ -203,7 +204,12 @@ func ExampleJoin_jsonMarshal() {
 	err2 := errors.New("something is broken")
 
 	err := multierror.Join(err1, err2)
-	b, _ := json.Marshal(err)
+	b, err := json.Marshal(err)
+	if err != nil {
+		fmt.Println(err)
+
+		return
+	}
 
 	fmt.Println(string(b))
 	// output: "something bad happened, something is broken"
