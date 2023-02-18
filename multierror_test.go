@@ -22,6 +22,8 @@ var (
 )
 
 func TestMultiError(t *testing.T) {
+	t.Parallel()
+
 	if err := multierror.Join(nil); err != nil {
 		t.Errorf("Expected err to be nil, got %s", err)
 	}
@@ -203,8 +205,7 @@ func ExampleJoin_jsonMarshal() {
 	err1 := errors.New("something bad happened")
 	err2 := errors.New("something is broken")
 
-	err := multierror.Join(err1, err2)
-	b, err := json.Marshal(err)
+	b, err := json.Marshal(multierror.Join(err1, err2))
 	if err != nil {
 		fmt.Println(err)
 
