@@ -26,6 +26,7 @@ The resulting errors support several common Go interfaces.
 * Stringer
 * Marshaler
 * GoStringer
+* GobEncode
 
 They also support common Go error methods.
 

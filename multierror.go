@@ -1,6 +1,8 @@
 package multierror
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -153,4 +155,12 @@ func (m *multiError) As(target any) bool {
 
 func (m *multiError) Unwrap() []error {
 	return m.errors
+}
+
+func (m *multiError) GobEncode() ([]byte, error) {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(m.Error()); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

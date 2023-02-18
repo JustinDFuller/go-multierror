@@ -1,11 +1,13 @@
 package multierror_test
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/justindfuller/go-multierror"
@@ -100,6 +102,14 @@ func TestMultiError(t *testing.T) {
 	if err := errors.Unwrap(multierror.Join(err1, err2)); err != nil {
 		t.Errorf("Expected to unwrap to return nil, got: %s", err)
 	}
+
+	var builder strings.Builder
+	if err := gob.NewEncoder(&builder).Encode(multierror.Join(err1, err2)); err != nil {
+		t.Errorf("Expected Join to support gob.Encode, got err: %s", err)
+	}
+	if s := builder.String(); !strings.Contains(s, "Found 4 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n\tsentinel four\n") {
+		t.Errorf("Expected gob to create string, got: %s", s)
+	}
 }
 
 func ExampleJoin() {
@@ -183,4 +193,16 @@ func ExampleJoin_fmtDefault() {
 	// output: Found 2 errors:
 	//	something bad happened
 	//	something is broken
+}
+
+func ExampleJoin_gobEncode() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	var builder strings.Builder
+	if err := gob.NewEncoder(&builder).Encode(multierror.Join(err1, err2)); err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(builder.String())
 }
