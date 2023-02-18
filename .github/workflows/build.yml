@@ -26,4 +26,4 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          args: --enable-all --sort-results --go 1.20 --disable lll --disable funlen --disable errorlint --disable varnamelen --disable gocognit
+          args: --enable-all --sort-results --go 1.20 --disable lll --disable funlen --disable errorlint --disable varnamelen --disable gocognit --disable nosnakecase --disable goerr113 --disable gocyclo

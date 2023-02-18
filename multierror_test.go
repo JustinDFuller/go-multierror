@@ -125,10 +125,12 @@ func TestMultiError(t *testing.T) {
 	if !errors.Is(unwrapped, errSentinelOne) || !errors.Is(unwrapped, errSentinelTwo) {
 		t.Errorf("Expected to unwrap to return wrapped error, got: %s", unwrapped)
 	}
+
 	unwrapped = errors.Unwrap(unwrapped)
 	if !errors.Is(unwrapped, errSentinelThree) || !errors.Is(unwrapped, errSentinelFour) {
 		t.Errorf("Expected unwrap to unwrap second error, got %s", unwrapped)
 	}
+
 	unwrapped = errors.Unwrap(unwrapped)
 	if unwrapped != nil {
 		t.Errorf("Expected unwrap to be nil, got %s", unwrapped)
@@ -138,6 +140,7 @@ func TestMultiError(t *testing.T) {
 	if err := gob.NewEncoder(&builder).Encode(multierror.Join(err1, err2)); err != nil {
 		t.Errorf("Expected Join to support gob.Encode, got err: %s", err)
 	}
+
 	if s := builder.String(); !strings.Contains(s, "Found 4 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n\tsentinel four\n") {
 		t.Errorf("Expected gob to create string, got: %s", s)
 	}
@@ -162,6 +165,7 @@ func ExampleJoin_nested() {
 
 	err := multierror.Join(err1, err2)
 	err = multierror.Join(err, err3)
+
 	fmt.Println(err)
 	// output: Found 3 errors:
 	//	something bad happened
@@ -176,6 +180,7 @@ func ExampleJoin_errorsIs() {
 
 	err := multierror.Join(err1, err2)
 	err = multierror.Join(err, err3)
+
 	fmt.Println(errors.Is(err, err1))
 	// output: true
 }
@@ -233,12 +238,14 @@ func ExampleJoin_gobEncode() {
 	var builder strings.Builder
 	if err := gob.NewEncoder(&builder).Encode(multierror.Join(err1, err2)); err != nil {
 		fmt.Println(err)
+
 		return
 	}
 
 	b, err := json.Marshal(builder.String())
 	if err != nil {
 		fmt.Println(err)
+
 		return
 	}
 
@@ -253,12 +260,14 @@ func ExampleJoin_textMarshaler() {
 	marshaler, ok := multierror.Join(err1, err2).(encoding.TextMarshaler)
 	if !ok {
 		fmt.Println("Not an encoding.TextMarshaler")
+
 		return
 	}
 
 	b, err := marshaler.MarshalText()
 	if err != nil {
 		fmt.Printf("Error encoding text: %s\n", err)
+
 		return
 	}
 
@@ -275,18 +284,21 @@ func ExampleJoin_binaryMarshaler() {
 	marshaler, ok := multierror.Join(err1, err2).(encoding.BinaryMarshaler)
 	if !ok {
 		fmt.Println("Not an encoding.TextMarshaler")
+
 		return
 	}
 
 	b, err := marshaler.MarshalBinary()
 	if err != nil {
 		fmt.Printf("Error encoding text: %s\n", err)
+
 		return
 	}
 
 	b, err = json.Marshal(b)
 	if err != nil {
 		fmt.Println(err)
+
 		return
 	}
 
@@ -296,6 +308,7 @@ func ExampleJoin_binaryMarshaler() {
 
 func ExampleJoin_nil() {
 	err := multierror.Join(nil, nil, nil)
+
 	fmt.Println(err)
 	// output: <nil>
 }
