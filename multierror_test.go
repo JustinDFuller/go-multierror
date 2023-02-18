@@ -106,7 +106,7 @@ func ExampleAppend() {
 	//	sentinel two
 }
 
-func ExampleAppend_Nested() {
+func ExampleNested() {
 	err := multierror.Append(errSentinelOne, errSentinelTwo)
 	err = multierror.Append(err, errSentinelThree)
 	fmt.Println(err)
@@ -116,7 +116,7 @@ func ExampleAppend_Nested() {
 	//	sentinel three
 }
 
-func ExampleAppend_JSONMarshal() {
+func ExampleJSONMarshal() {
 	err := multierror.Append(errSentinelOne, errSentinelTwo)
 	b, _ := json.Marshal(err)
 	fmt.Println(string(b))
