@@ -118,10 +118,11 @@ These libraries have the following problems (in no particular order, not all pro
 * They do not implement common interfaces such as Marshaler, so they don't work with JSON output. This applies to other interfaces and encoders as well.
 * They all have different interfaces and methods.
 * They expose their underlying error type.
+* They import third-party dependencies 
 
 This `go-multierror` solves these problems by:
 
 * Implementing common interfaces (listed above).
 * Aligning the interface with the Go standard library.
 * Hiding the underlying error type.
-
+* Using only standard library dependencies 
