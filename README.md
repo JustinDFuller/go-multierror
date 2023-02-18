@@ -1,9 +1,10 @@
 # go-multierror
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/justindfuller/go-multierror.svg)](https://pkg.go.dev/github.com/justindfuller/go-multierror)
+[![Build](https://github.com/justindfuller/go-multierror/actions/workflows/build.yml/badge.svg)](https://github.com/JustinDFuller/go-multierror/actions/workflows/build.yml)
+[![Dependencies](https://img.shields.io/badge/Dependencies-None-success)](/go.mod)
 [![Go Report Card](https://goreportcard.com/badge/github.com/justindfuller/go-multierror)](https://goreportcard.com/report/github.com/justindfuller/go-multierror)
 [![License](https://img.shields.io/github/license/golangci/golangci-lint)](/LICENSE)
-![Build Results](https://github.com/justindfuller/go-multierror/actions/workflows/build.yml/badge.svg)
 
 Package multierror implements a `Join` function that combines two or more Go errors.
 
