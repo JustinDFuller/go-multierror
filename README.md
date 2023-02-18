@@ -1,6 +1,6 @@
 # go-multierror
 
-Package multierror implements an `Join` function that adds two Go errors together.
+Package multierror implements a `Join` function that adds two Go errors together.
 
 ```
 go get github.com/justindfuller/go-multierror

@@ -53,11 +53,19 @@ func TestMultiError(t *testing.T) {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).String(); s != "Found 3 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n" {
+	stringer, ok := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).(fmt.Stringer)
+	if !ok {
+		t.Error("Expected the resulting error to implement fmt.Stringer")
+	}
+	if s := stringer.String(); s != "Found 3 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n" {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).GoString(); s != `[3]error{"sentinel one","sentinel two","sentinel three"}` {
+	gostringer, ok := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).(fmt.GoStringer)
+	if !ok {
+		t.Error("Expected the resulting error to implement GoStringer")
+	}
+	if s := gostringer.GoString(); s != `[3]error{"sentinel one","sentinel two","sentinel three"}` {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
@@ -71,11 +79,19 @@ func TestMultiError(t *testing.T) {
 		t.Errorf("(Recursive) Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(err1, err2).String(); s != "Found 4 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n\tsentinel four\n" {
+	stringer, ok = multierror.Join(err1, err2).(fmt.Stringer)
+	if !ok {
+		t.Error("Expected the resulting error to implement fmt.Stringer")
+	}
+	if s := stringer.String(); s != "Found 4 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n\tsentinel four\n" {
 		t.Errorf("(Recursive) Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(err1, err2).GoString(); s != `[4]error{"sentinel one","sentinel two","sentinel three","sentinel four"}` {
+	gostringer, ok = multierror.Join(err1, err2).(fmt.GoStringer)
+	if !ok {
+		t.Error("Expected the resulting error to implement GoStringer")
+	}
+	if s := gostringer.GoString(); s != `[4]error{"sentinel one","sentinel two","sentinel three","sentinel four"}` {
 		t.Errorf("(Recursive) Unexpected GoString, got %s", s)
 	}
 
