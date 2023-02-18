@@ -127,3 +127,16 @@ func (m *multiError) GobEncode() ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
+
+func (m *multiError) MarshalText() ([]byte, error) {
+	return []byte(m.Error()), nil
+}
+
+func (m *multiError) MarshalBinary() ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(m); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}

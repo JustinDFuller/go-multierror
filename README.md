@@ -6,13 +6,17 @@ Package multierror implements a `Join` function that adds two Go errors together
 go get github.com/justindfuller/go-multierror
 ```
 
-## Example
+## Examples
+
+Joining two errors:
 
 ```go
 func main() {
   err1 := errors.New("my first error")
   err2 := errors.New("my second error")
+
   err := multierror.Join(err1, err2)
+
   fmt.Println(err)
   // Found 2 errors:
   //  my first error
@@ -20,19 +24,78 @@ func main() {
 }
 ```
 
-The resulting errors support several common Go interfaces.
+Joining nil errors will result in `nil` so that you don't have to do extra `nil` checks before joining:
 
-* Error
+```go
+func main() {
+	err := multierror.Join(nil, nil, nil)
+	fmt.Println(err)
+	// <nil>
+}
+```
+
+## Supported Interfaces
+
+The resulting errors support many common Go interfaces.
+
+* error
 * Stringer
 * Marshaler
 * GoStringer
-* GobEncode
+* GobEncoder
+* BinaryMarshaler
+* TextMarshaler
+
+```go
+func main() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	err := multierror.Join(err1, err2)
+	b, _ := json.Marshal(err)
+
+	fmt.Println(string(b))
+	// output: "something bad happened, something is broken"
+}
+```
 
 They also support common Go error methods.
 
 * errors.Is
 * errors.As
+* errors.Unwrap
 
+errors.Is:
+
+```go
+func main() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+	err3 := errors.New("something is REALLY broken")
+
+	err := multierror.Join(err1, err2)
+	err = multierror.Join(err, err3)
+	fmt.Println(errors.Is(err, err1))
+	// output: true
+}
+```
+
+errors.As:
+
+```go
+func main() {
+  _, err := os.Open("non-existing")
+	if err == nil {
+		fmt.Println("No error")
+	}
+
+	err = multierror.Join(err, errSentinelOne)
+
+	var pathError *fs.PathError
+	fmt.Println(errors.As(err, &pathError))
+	// output: true
+}
+```
 
 ## Why?
 

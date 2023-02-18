@@ -1,6 +1,7 @@
 package multierror_test
 
 import (
+	"encoding"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
@@ -227,7 +228,69 @@ func ExampleJoin_gobEncode() {
 	var builder strings.Builder
 	if err := gob.NewEncoder(&builder).Encode(multierror.Join(err1, err2)); err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	fmt.Println(builder.String())
+	b, err := json.Marshal(builder.String())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(b))
+	// output: "\n\ufffd\ufffd\u0005\u0001\u0002\ufffd\ufffd\u0000\u0000\u0000E\ufffd\ufffd\u0000A@\u000c\u0000=Found 2 errors:\n\tsomething bad happened\n\tsomething is broken\n"
+}
+
+func ExampleJoin_textMarshaler() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	marshaler, ok := multierror.Join(err1, err2).(encoding.TextMarshaler)
+	if !ok {
+		fmt.Println("Not an encoding.TextMarshaler")
+		return
+	}
+
+	b, err := marshaler.MarshalText()
+	if err != nil {
+		fmt.Printf("Error encoding text: %s\n", err)
+		return
+	}
+
+	fmt.Println(string(b))
+	// output: Found 2 errors:
+	//	something bad happened
+	//	something is broken
+}
+
+func ExampleJoin_binaryMarshaler() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	marshaler, ok := multierror.Join(err1, err2).(encoding.BinaryMarshaler)
+	if !ok {
+		fmt.Println("Not an encoding.TextMarshaler")
+		return
+	}
+
+	b, err := marshaler.MarshalBinary()
+	if err != nil {
+		fmt.Printf("Error encoding text: %s\n", err)
+		return
+	}
+
+	b, err = json.Marshal(b)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(b))
+	// output: "Cv+BBQEC/4QAAABF/4IAQUAMAD1Gb3VuZCAyIGVycm9yczoKCXNvbWV0aGluZyBiYWQgaGFwcGVuZWQKCXNvbWV0aGluZyBpcyBicm9rZW4K"
+}
+
+func ExampleJoin_nil() {
+	err := multierror.Join(nil, nil, nil)
+	fmt.Println(err)
+	// output: <nil>
 }
