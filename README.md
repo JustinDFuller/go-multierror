@@ -1,5 +1,9 @@
 # go-multierror
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/justindfuller/go-multierror.svg)](https://pkg.go.dev/github.com/justindfuller/go-multierror)
+[![Go Report Card](https://goreportcard.com/badge/github.com/justindfuller/go-multierror)](https://goreportcard.com/report/github.com/justindfuller/go-multierror)
+[![License](https://img.shields.io/github/license/golangci/golangci-lint)](/LICENSE)
+
 Package multierror implements a `Join` function that combines two or more Go errors.
 
 ```
