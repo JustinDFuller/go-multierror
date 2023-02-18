@@ -67,12 +67,14 @@ func TestMultiError(t *testing.T) {
 	if !ok {
 		t.Error("Expected the resulting error to implement GoStringer")
 	}
+
 	if s := gostringer.GoString(); s != `[3]error{"sentinel one","sentinel two","sentinel three"}` {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
 	err1 := multierror.Join(errSentinelOne, errSentinelTwo)
 	err2 := multierror.Join(errSentinelThree, errSentinelFour)
+
 	if err := multierror.Join(err1, err2); !errors.Is(err, errSentinelOne) || !errors.Is(err, errSentinelTwo) || !errors.Is(err, errSentinelThree) || !errors.Is(err, errSentinelFour) {
 		t.Errorf("(Recursive) Missing one of the sentinel errors, got %s", err)
 	}
@@ -85,6 +87,7 @@ func TestMultiError(t *testing.T) {
 	if !ok {
 		t.Error("Expected the resulting error to implement fmt.Stringer")
 	}
+
 	if s := stringer.String(); s != "Found 4 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n\tsentinel four\n" {
 		t.Errorf("(Recursive) Unexpected string, got %s", s)
 	}
@@ -93,22 +96,23 @@ func TestMultiError(t *testing.T) {
 	if !ok {
 		t.Error("Expected the resulting error to implement GoStringer")
 	}
+
 	if s := gostringer.GoString(); s != `[4]error{"sentinel one","sentinel two","sentinel three","sentinel four"}` {
 		t.Errorf("(Recursive) Unexpected GoString, got %s", s)
 	}
 
 	if _, err := os.Open("non-existing"); err != nil {
-		err := multierror.Join(err, errSentinelOne)
 		var pathError *fs.PathError
-		if !errors.As(err, &pathError) {
+
+		if !errors.As(multierror.Join(err, errSentinelOne), &pathError) {
 			t.Errorf("Expected Join to support errors.As: %s", err)
 		}
 	}
 
 	if _, err := os.Open("non-existing"); err != nil {
-		err := multierror.Join(errSentinelOne, err)
 		var pathError *fs.PathError
-		if !errors.As(err, &pathError) {
+
+		if !errors.As(multierror.Join(errSentinelOne, err), &pathError) {
 			t.Errorf("Expected Join to support errors.As: %s", err)
 		}
 	}
