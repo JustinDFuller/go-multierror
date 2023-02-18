@@ -58,6 +58,7 @@ func TestMultiError(t *testing.T) {
 	if !ok {
 		t.Error("Expected the resulting error to implement fmt.Stringer")
 	}
+
 	if s := stringer.String(); s != "Found 3 errors:\n\tsentinel one\n\tsentinel two\n\tsentinel three\n" {
 		t.Errorf("Unexpected string, got %s", s)
 	}

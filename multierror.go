@@ -33,6 +33,7 @@ func (m *multiError) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error Marshaling multiError to json: %w", err)
 	}
+
 	return b, nil
 }
 
@@ -72,7 +73,7 @@ func (m *multiError) Error() string {
 		return ""
 	}
 
-	var s string
+	var str string
 
 	var errs []error
 	for _, e := range m.errors {
@@ -80,16 +81,16 @@ func (m *multiError) Error() string {
 	}
 
 	if len(errs) == 1 {
-		s += "Found one error:\n"
+		str += "Found one error:\n"
 	} else {
-		s += fmt.Sprintf("Found %d errors:\n", len(errs))
+		str += fmt.Sprintf("Found %d errors:\n", len(errs))
 	}
 
 	for _, err := range errs {
-		s += fmt.Sprintf("\t%s\n", err.Error())
+		str += fmt.Sprintf("\t%s\n", err.Error())
 	}
 
-	return s
+	return str
 }
 
 func flatten(err error) []error {
@@ -97,10 +98,9 @@ func flatten(err error) []error {
 		return nil
 	}
 
-	var flattened []error
+	if e, ok := err.(*multiError); ok {
+		var flattened []error
 
-	switch e := err.(type) {
-	case *multiError:
 		if len(e.errors) == 0 {
 			return nil
 		}
@@ -108,11 +108,11 @@ func flatten(err error) []error {
 		for _, e := range e.errors {
 			flattened = append(flattened, flatten(e)...)
 		}
-	case error:
-		return []error{e}
+
+		return flattened
 	}
 
-	return flattened
+	return []error{err}
 }
 
 func (m *multiError) Unwrap() error {
