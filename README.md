@@ -1,6 +1,6 @@
 # go-multierror
 
-Package multierror implements an `Append` function that adds two Go errors together.
+Package multierror implements an `Join` function that adds two Go errors together.
 
 ```
 go get github.com/justindfuller/go-multierror
@@ -12,7 +12,7 @@ go get github.com/justindfuller/go-multierror
 func main() {
   err1 := errors.New("my first error")
   err2 := errors.New("my second error")
-  err := multierror.Append(err1, err2)
+  err := multierror.Join(err1, err2)
   fmt.Println(err)
   // Found 2 errors:
   //  my first error
