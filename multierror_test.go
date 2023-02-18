@@ -55,7 +55,7 @@ func TestMultiError(t *testing.T) {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).GoString(); s != "[3]error{sentinel one,sentinel two,sentinel three}" {
+	if s := multierror.Join(errSentinelOne, errSentinelTwo, errSentinelThree).GoString(); s != `[3]error{"sentinel one","sentinel two","sentinel three"}` {
 		t.Errorf("Unexpected string, got %s", s)
 	}
 
@@ -73,7 +73,7 @@ func TestMultiError(t *testing.T) {
 		t.Errorf("(Recursive) Unexpected string, got %s", s)
 	}
 
-	if s := multierror.Join(err1, err2).GoString(); s != "[4]error{sentinel one,sentinel two,sentinel three,sentinel four}" {
+	if s := multierror.Join(err1, err2).GoString(); s != `[4]error{"sentinel one","sentinel two","sentinel three","sentinel four"}` {
 		t.Errorf("(Recursive) Unexpected GoString, got %s", s)
 	}
 
@@ -95,6 +95,10 @@ func TestMultiError(t *testing.T) {
 
 	if b, err := json.Marshal(multierror.Join(err1, err2)); err != nil || string(b) != `"sentinel one, sentinel two, sentinel three, sentinel four"` {
 		t.Errorf("Expected Join to support json.Marshal: %s, %s", err, string(b))
+	}
+
+	if err := errors.Unwrap(multierror.Join(err1, err2)); err != nil {
+		t.Errorf("Expected to unwrap to return nil, got: %s", err)
 	}
 }
 
@@ -124,7 +128,31 @@ func ExampleJoin_nested() {
 	//	something is REALLY broken
 }
 
-func ExampleJoin_jsonmarshal() {
+func ExampleJoin_errorsIs() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+	err3 := errors.New("something is REALLY broken")
+
+	err := multierror.Join(err1, err2)
+	err = multierror.Join(err, err3)
+	fmt.Println(errors.Is(err, err1))
+	// output: true
+}
+
+func ExampleJoin_errorsAs() {
+	_, err := os.Open("non-existing")
+	if err == nil {
+		fmt.Println("No error")
+	}
+
+	err = multierror.Join(err, errSentinelOne)
+
+	var pathError *fs.PathError
+	fmt.Println(errors.As(err, &pathError))
+	// output: true
+}
+
+func ExampleJoin_jsonMarshal() {
 	err1 := errors.New("something bad happened")
 	err2 := errors.New("something is broken")
 
@@ -133,4 +161,26 @@ func ExampleJoin_jsonmarshal() {
 
 	fmt.Println(string(b))
 	// output: "something bad happened, something is broken"
+}
+
+func ExampleJoin_fmtGoSyntaxRepresentation() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	err := multierror.Join(err1, err2)
+
+	fmt.Printf("%#v", err)
+	// output: [2]error{"something bad happened","something is broken"}
+}
+
+func ExampleJoin_fmtDefault() {
+	err1 := errors.New("something bad happened")
+	err2 := errors.New("something is broken")
+
+	err := multierror.Join(err1, err2)
+
+	fmt.Printf("%v", err)
+	// output: Found 2 errors:
+	//	something bad happened
+	//	something is broken
 }

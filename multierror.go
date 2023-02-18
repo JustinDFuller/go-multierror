@@ -7,25 +7,6 @@ import (
 	"strings"
 )
 
-// Join joins one error with one or more other errors.
-// The resulting value is a multiError containing all non-nil errors provided.
-// If the first error is a multiError, the rest of the errors will be appended to the existing multiError.
-// If the first error is not a multiError, a new multiError will be created for it and all the rest of the errors as well.
-func Join(errors ...error) *multiError {
-	var errs []error
-	for _, e := range errors {
-		if e != nil {
-			errs = append(errs, e)
-		}
-	}
-	if len(errs) == 0 {
-		return nil
-	}
-	return &multiError{
-		errors: errs,
-	}
-}
-
 type multiError struct {
 	errors []error
 }
@@ -60,7 +41,7 @@ func (m *multiError) GoString() string {
 
 	var errStrings []string
 	for _, err := range errs {
-		errStrings = append(errStrings, err.Error())
+		errStrings = append(errStrings, fmt.Sprintf(`"%s"`, err.Error()))
 	}
 
 	return fmt.Sprintf("[%d]error{%s}", len(errStrings), strings.Join(errStrings, ","))
@@ -168,4 +149,8 @@ func (m *multiError) As(target any) bool {
 	}
 
 	return false
+}
+
+func (m *multiError) Unwrap() []error {
+	return m.errors
 }

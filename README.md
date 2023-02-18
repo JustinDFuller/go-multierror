@@ -32,3 +32,25 @@ They also support common Go error methods.
 * errors.Is
 * errors.As
 
+
+## Why?
+
+I've been unhappy with existing `go-multierror` implementations.
+There are three that I am aware of:
+
+1. The standard library [errors.Join](https://pkg.go.dev/errors#Join)
+2. Hashicorp's [go-multierror](https://github.com/hashicorp/go-multierror)
+3. Uber's [go-multierr](https://github.com/uber-go/multierr)
+
+These libraries have the following problems (in no particular order, not all problems apply to all of them):
+
+* They do not implement common interfaces such as Marshaler, so they don't work with JSON output. This applies to other interfaces and encoders as well.
+* They all have different interfaces and methods.
+* They expose their underlying error type.
+
+This `go-multierror` solves these problems by:
+
+* Implementing common interfaces (listed above).
+* Aligning the interface with the Go standard library.
+* Hiding the underlying error type.
+
