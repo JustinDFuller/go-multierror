@@ -18,16 +18,22 @@ func (m *multiError) MarshalJSON() ([]byte, error) {
 	}
 
 	var errs []error
+
 	for _, e := range m.errors {
 		errs = append(errs, flatten(e)...)
 	}
 
-	var errStrings []string
+	errStrings := make([]string, 0, len(errs))
+
 	for _, err := range errs {
 		errStrings = append(errStrings, err.Error())
 	}
 
-	return json.Marshal(strings.Join(errStrings, ", "))
+	b, err := json.Marshal(strings.Join(errStrings, ", "))
+	if err != nil {
+		return nil, fmt.Errorf("error Marshaling multiError to json: %w", err)
+	}
+	return b, nil
 }
 
 func (m *multiError) GoString() string {
@@ -40,7 +46,8 @@ func (m *multiError) GoString() string {
 		errs = append(errs, flatten(e)...)
 	}
 
-	var errStrings []string
+	errStrings := make([]string, 0, len(errs))
+
 	for _, err := range errs {
 		errStrings = append(errStrings, fmt.Sprintf(`"%s"`, err.Error()))
 	}
@@ -112,19 +119,24 @@ func (m *multiError) Unwrap() error {
 	if m == nil || len(m.errors) == 0 {
 		return nil
 	}
+
 	if len(m.errors) == 1 {
 		return m.errors[0]
 	}
+
 	errs := make([]error, len(m.errors))
 	copy(errs, m.errors)
+
 	return unwrapper(errs)
 }
 
 func (m *multiError) GobEncode() ([]byte, error) {
 	var buf bytes.Buffer
+
 	if err := gob.NewEncoder(&buf).Encode(m.Error()); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error encoding multiError with gob: %w", err)
 	}
+
 	return buf.Bytes(), nil
 }
 
@@ -135,8 +147,10 @@ func (m *multiError) MarshalText() ([]byte, error) {
 func (m *multiError) MarshalBinary() ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
+
 	if err := enc.Encode(m); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error encoding multiError with gob: %w", err)
 	}
+
 	return buf.Bytes(), nil
 }
